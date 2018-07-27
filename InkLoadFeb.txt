@@ -1,0 +1,114 @@
+Hi venkat,
+
+Please execute the below commands.
+
+Running: 
+
+cd /opt/printerusage/AllInkProcessing
+nohup scripts/runAllInkAn.sh src/hp-allink-an-us451.v1.jar 20170228 > 03062017-an_run_allink_mar-main-20170228.log &
+
+ALL INK – IDENTIFIED
+1.All Ink Identified Table Backup
+ 
+cd /opt/printerusage/AllInkProcessing
+ 
+nohup ./scripts/export-Identified-tables.sh table_names_privacy_pii 20170131 > Logs/03062017-identified-allink-20170131.log &
+
+Table backup is available at :  /printerusage/TABLE_BACKUP/IDENTIFIED/ALLINK/
+ 
+Table Names :
+hp_allink_month_fact_feature_cr_pii
+hp_allink_pages_feature_cr_pii
+hp_allink_group_info_feature_cr_pii
+
+2. All Ink Update
+ 
+Command:
+cd /opt/printerusage/AllInkProcessing
+nohup scripts/update_allink_table_Pii.sh src/hp-allink-pii-us451.v1.0.jar <previous load id> > Logs/<log file> &
+ 
+Example :
+cd /opt/printerusage/AllInkProcessing
+nohup scripts/update_allink_table_Pii.sh src/hp-allink-pii-us451.v1.0.jar 20170131 > Logs/03062017-update_allink_pii_january_20170131.log &
+ 
+ 
+3. All Ink Fact Load
+cd /opt/printerusage/AllInkProcessing/Month_Keys
+create a file (monthkey_feb_2017_identified) under above mentioned path and write all load ID’s there ,that are created in Identified INK load .(20170228)
+ 
+cd /opt/printerusage/AllInkProcessing
+
+Example:
+nohup scripts/LoadRunPrivacyPii.sh src/hp-allink-pii-us451.v1.0.jar  Month_Keys/monthkey_feb_2017_identified /printerusage/HP/INK/IDENTIFIED/VERTICA/MONTH_FACT 20170228 > 03072017-all_ink_feb_2017_pii-20170228.log &
+ 
+4. All Ink Main
+cd /opt/printerusage/AllInkProcessing
+ 
+Example :
+nohup scripts/runAllInkPii.sh src/hp-allink-pii-us451.v1.0.jar 20170228 > 03072017-run_allink-main_feb_2017-20170228.log &
+
+Vertica Load :- ALLINK – Anonymous
+Vertica db connection string from terminal :
+/opt/vertica/bin/vsql -C -h shr4-vrt-pro-007.houston.hp.com -d shr4_vrt_pro_007 -p 5433 -U srvc_telemetry_pusage_anon_load_pro -w  Telemetry_pro_vload_jun_2014!
+ 
+Take the count of tables:
+select count(*) from App_Telemetry_Print_Usage_Ink_Anonymous.ALL_INK_FACT;
+ count (Before)
+------------
+ 1087936991
+(1 row)
+
+ count (After)
+------------
+ 1118453754
+(1 row)
+
+
+ 
+cd /opt/printerusage/vertica/script/ink/sh
+ 
+Command
+nohup ./VerticaLoadMainProcessAllInkFactSpecific.sh <loadid> AN > logs/<logfile>  &
+ 
+Example
+nohup ./VerticaLoadMainProcessAllInkFactSpecific.sh 20170228 AN > logs/03072017-Feb-allink-20170228.log &
+ 
+ 
+Vertica Load :- ALLINK – Identified
+Vertica db connection string from terminal :
+/opt/vertica/bin/vsql -C -h shr4-vrt-pro-007.houston.hp.com -d shr4_vrt_pro_007 -p 5433 -w Telemetry_pro_vload_jun_2014! -U srvc_telemetry_pusage_pii_load_pro
+ 
+ 
+Take the count of tables:
+select count(*) from Common_Telemetry_Print_Usage.ALL_INK_FACT_us451;
+
+ count(Before)
+-----------
+ 118199533
+(1 row)
+
+ count(After)
+-----------
+ 118827607
+(1 row) 
+
+
+cd /opt/printerusage/vertica/script/ink/sh
+Command:
+nohup ./VerticaLoadMainProcessAllInkFactSpecific.sh <loadid> PII > logs/<logfile> &
+ 
+Example:
+nohup ./VerticaLoadMainProcessAllInkFactSpecific.sh 20170228 PII > logs/03072017-feb-allink-identified-20170228.log &
+
+
+
+
+
+
+
+
+Best Regards,
+Ranjani
+Email Confidentiality Notice:  The contents of this email message and any attachments are intended only for the use of the individual or entity to which it is addressed and may contain information that is privileged, confidential, or exempt from disclosure under applicable federal or state law.  If you are not the intended recipient, or this message has been addressed to you in error, please immediately alert the sender by reply e-mail and then delete this message and any attachment(s).  If you are not the intended recipient, you are hereby notified that any use, dissemination, distribution or copying of this communication or any attachment(s) is strictly prohibited.
+ 
+
